@@ -98,6 +98,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int1",
             "name": "str1",
             "in": "query",
@@ -105,6 +106,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int2",
             "name": "str2",
             "in": "query",
@@ -115,7 +117,7 @@ func init() {
           "200": {
             "description": "fizz buzz string",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/FizzBuzzResponse"
             }
           },
           "default": {
@@ -137,6 +139,13 @@ func init() {
           "format": "int64"
         },
         "message": {
+          "type": "string"
+        }
+      }
+    },
+    "FizzBuzzResponse": {
+      "properties": {
+        "output": {
           "type": "string"
         }
       }
@@ -234,6 +243,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int1",
             "name": "str1",
             "in": "query",
@@ -241,6 +251,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int2",
             "name": "str2",
             "in": "query",
@@ -251,7 +262,7 @@ func init() {
           "200": {
             "description": "fizz buzz string",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/FizzBuzzResponse"
             }
           },
           "default": {
@@ -273,6 +284,13 @@ func init() {
           "format": "int64"
         },
         "message": {
+          "type": "string"
+        }
+      }
+    },
+    "FizzBuzzResponse": {
+      "properties": {
+        "output": {
           "type": "string"
         }
       }
