@@ -1,0 +1,87 @@
+swagger: '2.0'
+info:
+  description: fizz-buzz api
+  version: 1.0.0
+  title: fizz-buzz api
+
+schemes: [http]
+host: localhost
+basePath: /
+consumes: [application/json]
+produces: [application/json]
+
+tags:
+  - name: fizzbuzz
+    description: fizzbuzz
+  - name: monitoring
+    description: monitoring
+paths:
+  /mon/ping:
+    get:
+      tags: [monitoring]
+      summary: Health check
+      responses:
+        '200':
+          description: Health OK
+          schema:
+            properties:
+              status:
+                default: OK
+                type: string
+            type: object
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+  /v1/fizzbuzz:
+    get:
+      tags: [fizzbuzz]
+      summary: Performs a fizz-buzz
+      operationId: fizzbuzz
+      parameters:
+        - name: int1
+          required: true
+          in: query
+          type: integer
+          format: int
+          description: number where all of its multiples will be replaced by str1
+        - name: int2
+          required: true
+          in: query
+          type: integer
+          format: int
+          description: number where all of its multiples will be replaced by str2
+        - name: limit
+          required: true
+          in: query
+          type: integer
+          format: int
+          description: maximum number until the fizz-buzz will be performed
+        - name: str1
+          required: true
+          in: query
+          type: string
+          description: string that will replace all multiples of int1
+        - name: str2
+          required: true
+          in: query
+          type: string
+          description: string that will replace all multiples of int2
+      responses:
+        200:
+          description: fizz buzz string
+          schema:
+            type: string
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Error:
+    properties:
+      code:
+        format: int64
+        type: integer
+      message:
+        type: string
+    type: object
