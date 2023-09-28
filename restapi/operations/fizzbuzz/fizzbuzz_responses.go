@@ -26,7 +26,7 @@ type FizzbuzzOK struct {
 	/*
 	  In: Body
 	*/
-	Payload string `json:"body,omitempty"`
+	Payload *models.FizzBuzzResponse `json:"body,omitempty"`
 }
 
 // NewFizzbuzzOK creates FizzbuzzOK with default headers values
@@ -36,13 +36,13 @@ func NewFizzbuzzOK() *FizzbuzzOK {
 }
 
 // WithPayload adds the payload to the fizzbuzz o k response
-func (o *FizzbuzzOK) WithPayload(payload string) *FizzbuzzOK {
+func (o *FizzbuzzOK) WithPayload(payload *models.FizzBuzzResponse) *FizzbuzzOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the fizzbuzz o k response
-func (o *FizzbuzzOK) SetPayload(payload string) {
+func (o *FizzbuzzOK) SetPayload(payload *models.FizzBuzzResponse) {
 	o.Payload = payload
 }
 
@@ -50,9 +50,11 @@ func (o *FizzbuzzOK) SetPayload(payload string) {
 func (o *FizzbuzzOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

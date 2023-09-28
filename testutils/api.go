@@ -10,7 +10,6 @@ import (
 	"github.com/go-openapi/loads"
 )
 
-// InitAPI retrieves the handler for API.
 func InitAPI(t testing.TB) http.Handler {
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {

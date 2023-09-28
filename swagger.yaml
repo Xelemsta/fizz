@@ -15,13 +15,15 @@ tags:
     description: fizzbuzz
   - name: monitoring
     description: monitoring
+  - name: stats
+    description: stats
 paths:
   /mon/ping:
     get:
       tags: [monitoring]
       summary: Health check
       responses:
-        '200':
+        200:
           description: Health OK
           schema:
             properties:
@@ -29,6 +31,19 @@ paths:
                 default: OK
                 type: string
             type: object
+        default:
+          description: Error handling the request
+          schema:
+            $ref: '#/definitions/Error'
+  /v1/stats:
+    get:
+      tags: [stats]
+      summary: Retrieves the most frequent used request, as well as the number of hits for this request
+      responses:
+        200:
+          description: Retrieves the most frequent used request, as well as the number of hits for this request
+          schema:
+            $ref: '#/definitions/MostUsedRequest'
         default:
           description: Error handling the request
           schema:
@@ -44,12 +59,14 @@ paths:
           in: query
           type: integer
           format: int
+          minimum: 1
           description: number where all of its multiples will be replaced by str1
         - name: int2
           required: true
           in: query
           type: integer
           format: int
+          minimum: 1
           description: number where all of its multiples will be replaced by str2
         - name: limit
           required: true
@@ -61,17 +78,19 @@ paths:
           required: true
           in: query
           type: string
+          x-nullable: false
           description: string that will replace all multiples of int1
         - name: str2
           required: true
           in: query
           type: string
           description: string that will replace all multiples of int2
+          x-nullable: false
       responses:
         200:
           description: fizz buzz string
           schema:
-            type: string
+            $ref: '#/definitions/FizzBuzzResponse'
         default:
           description: Error handling the request
           schema:
@@ -85,3 +104,31 @@ definitions:
       message:
         type: string
     type: object
+  FizzBuzzResponse:
+    properties:
+      output:
+        type: string
+  MostUsedRequest:
+    properties:
+      int1:
+        type: integer
+        format: int
+      int2:
+        type: integer
+        format: int
+      limit:
+        type: integer
+        format: int
+      str1:
+        type: string
+      str2:
+        type: string
+      hits:
+        type: integer
+        format: int
+    required:
+      - int1
+      - int2
+      - limit
+      - str1
+      - str2

@@ -73,6 +73,7 @@ func init() {
         "operationId": "fizzbuzz",
         "parameters": [
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str1",
@@ -81,6 +82,7 @@ func init() {
             "required": true
           },
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str2",
@@ -98,6 +100,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int1",
             "name": "str1",
             "in": "query",
@@ -105,6 +108,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int2",
             "name": "str2",
             "in": "query",
@@ -115,7 +119,29 @@ func init() {
           "200": {
             "description": "fizz buzz string",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/FizzBuzzResponse"
+            }
+          },
+          "default": {
+            "description": "Error handling the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/v1/stats": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Retrieves the most frequent used request, as well as the number of hits for this request",
+        "responses": {
+          "200": {
+            "description": "Retrieves the most frequent used request, as well as the number of hits for this request",
+            "schema": {
+              "$ref": "#/definitions/MostUsedRequest"
             }
           },
           "default": {
@@ -140,6 +166,46 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "FizzBuzzResponse": {
+      "properties": {
+        "output": {
+          "type": "string"
+        }
+      }
+    },
+    "MostUsedRequest": {
+      "required": [
+        "int1",
+        "int2",
+        "limit",
+        "str1",
+        "str2"
+      ],
+      "properties": {
+        "hits": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int1": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int2": {
+          "type": "integer",
+          "format": "int"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int"
+        },
+        "str1": {
+          "type": "string"
+        },
+        "str2": {
+          "type": "string"
+        }
+      }
     }
   },
   "tags": [
@@ -150,6 +216,10 @@ func init() {
     {
       "description": "monitoring",
       "name": "monitoring"
+    },
+    {
+      "description": "stats",
+      "name": "stats"
     }
   ]
 }`))
@@ -209,6 +279,7 @@ func init() {
         "operationId": "fizzbuzz",
         "parameters": [
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str1",
@@ -217,6 +288,7 @@ func init() {
             "required": true
           },
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str2",
@@ -234,6 +306,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int1",
             "name": "str1",
             "in": "query",
@@ -241,6 +314,7 @@ func init() {
           },
           {
             "type": "string",
+            "x-nullable": false,
             "description": "string that will replace all multiples of int2",
             "name": "str2",
             "in": "query",
@@ -251,7 +325,29 @@ func init() {
           "200": {
             "description": "fizz buzz string",
             "schema": {
-              "type": "string"
+              "$ref": "#/definitions/FizzBuzzResponse"
+            }
+          },
+          "default": {
+            "description": "Error handling the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/v1/stats": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Retrieves the most frequent used request, as well as the number of hits for this request",
+        "responses": {
+          "200": {
+            "description": "Retrieves the most frequent used request, as well as the number of hits for this request",
+            "schema": {
+              "$ref": "#/definitions/MostUsedRequest"
             }
           },
           "default": {
@@ -276,6 +372,46 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "FizzBuzzResponse": {
+      "properties": {
+        "output": {
+          "type": "string"
+        }
+      }
+    },
+    "MostUsedRequest": {
+      "required": [
+        "int1",
+        "int2",
+        "limit",
+        "str1",
+        "str2"
+      ],
+      "properties": {
+        "hits": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int1": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int2": {
+          "type": "integer",
+          "format": "int"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int"
+        },
+        "str1": {
+          "type": "string"
+        },
+        "str2": {
+          "type": "string"
+        }
+      }
     }
   },
   "tags": [
@@ -286,6 +422,10 @@ func init() {
     {
       "description": "monitoring",
       "name": "monitoring"
+    },
+    {
+      "description": "stats",
+      "name": "stats"
     }
   ]
 }`))
