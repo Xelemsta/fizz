@@ -21,6 +21,7 @@ import (
 
 	"fizz/restapi/operations/fizzbuzz"
 	"fizz/restapi/operations/monitoring"
+	"fizz/restapi/operations/stats"
 )
 
 // NewFizzBuzzAPIAPI creates a new FizzBuzzAPI instance
@@ -47,6 +48,9 @@ func NewFizzBuzzAPIAPI(spec *loads.Document) *FizzBuzzAPIAPI {
 
 		MonitoringGetMonPingHandler: monitoring.GetMonPingHandlerFunc(func(params monitoring.GetMonPingParams) middleware.Responder {
 			return middleware.NotImplemented("operation monitoring.GetMonPing has not yet been implemented")
+		}),
+		StatsGetV1StatsHandler: stats.GetV1StatsHandlerFunc(func(params stats.GetV1StatsParams) middleware.Responder {
+			return middleware.NotImplemented("operation stats.GetV1Stats has not yet been implemented")
 		}),
 		FizzbuzzFizzbuzzHandler: fizzbuzz.FizzbuzzHandlerFunc(func(params fizzbuzz.FizzbuzzParams) middleware.Responder {
 			return middleware.NotImplemented("operation fizzbuzz.Fizzbuzz has not yet been implemented")
@@ -89,6 +93,8 @@ type FizzBuzzAPIAPI struct {
 
 	// MonitoringGetMonPingHandler sets the operation handler for the get mon ping operation
 	MonitoringGetMonPingHandler monitoring.GetMonPingHandler
+	// StatsGetV1StatsHandler sets the operation handler for the get v1 stats operation
+	StatsGetV1StatsHandler stats.GetV1StatsHandler
 	// FizzbuzzFizzbuzzHandler sets the operation handler for the fizzbuzz operation
 	FizzbuzzFizzbuzzHandler fizzbuzz.FizzbuzzHandler
 
@@ -170,6 +176,9 @@ func (o *FizzBuzzAPIAPI) Validate() error {
 
 	if o.MonitoringGetMonPingHandler == nil {
 		unregistered = append(unregistered, "monitoring.GetMonPingHandler")
+	}
+	if o.StatsGetV1StatsHandler == nil {
+		unregistered = append(unregistered, "stats.GetV1StatsHandler")
 	}
 	if o.FizzbuzzFizzbuzzHandler == nil {
 		unregistered = append(unregistered, "fizzbuzz.FizzbuzzHandler")
@@ -266,6 +275,10 @@ func (o *FizzBuzzAPIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/mon/ping"] = monitoring.NewGetMonPing(o.context, o.MonitoringGetMonPingHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/v1/stats"] = stats.NewGetV1Stats(o.context, o.StatsGetV1StatsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -73,6 +73,7 @@ func init() {
         "operationId": "fizzbuzz",
         "parameters": [
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str1",
@@ -81,6 +82,7 @@ func init() {
             "required": true
           },
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str2",
@@ -128,6 +130,28 @@ func init() {
           }
         }
       }
+    },
+    "/v1/stats": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Retrieves the most frequent used request, as well as the number of hits for this request",
+        "responses": {
+          "200": {
+            "description": "Retrieves the most frequent used request, as well as the number of hits for this request",
+            "schema": {
+              "$ref": "#/definitions/MostUsedRequest"
+            }
+          },
+          "default": {
+            "description": "Error handling the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -149,6 +173,39 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "MostUsedRequest": {
+      "required": [
+        "int1",
+        "int2",
+        "limit",
+        "str1",
+        "str2"
+      ],
+      "properties": {
+        "hits": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int1": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int2": {
+          "type": "integer",
+          "format": "int"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int"
+        },
+        "str1": {
+          "type": "string"
+        },
+        "str2": {
+          "type": "string"
+        }
+      }
     }
   },
   "tags": [
@@ -159,6 +216,10 @@ func init() {
     {
       "description": "monitoring",
       "name": "monitoring"
+    },
+    {
+      "description": "stats",
+      "name": "stats"
     }
   ]
 }`))
@@ -218,6 +279,7 @@ func init() {
         "operationId": "fizzbuzz",
         "parameters": [
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str1",
@@ -226,6 +288,7 @@ func init() {
             "required": true
           },
           {
+            "minimum": 1,
             "type": "integer",
             "format": "int",
             "description": "number where all of its multiples will be replaced by str2",
@@ -273,6 +336,28 @@ func init() {
           }
         }
       }
+    },
+    "/v1/stats": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Retrieves the most frequent used request, as well as the number of hits for this request",
+        "responses": {
+          "200": {
+            "description": "Retrieves the most frequent used request, as well as the number of hits for this request",
+            "schema": {
+              "$ref": "#/definitions/MostUsedRequest"
+            }
+          },
+          "default": {
+            "description": "Error handling the request",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -294,6 +379,39 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "MostUsedRequest": {
+      "required": [
+        "int1",
+        "int2",
+        "limit",
+        "str1",
+        "str2"
+      ],
+      "properties": {
+        "hits": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int1": {
+          "type": "integer",
+          "format": "int"
+        },
+        "int2": {
+          "type": "integer",
+          "format": "int"
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int"
+        },
+        "str1": {
+          "type": "string"
+        },
+        "str2": {
+          "type": "string"
+        }
+      }
     }
   },
   "tags": [
@@ -304,6 +422,10 @@ func init() {
     {
       "description": "monitoring",
       "name": "monitoring"
+    },
+    {
+      "description": "stats",
+      "name": "stats"
     }
   ]
 }`))
