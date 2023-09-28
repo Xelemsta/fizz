@@ -35,11 +35,13 @@ type FizzbuzzParams struct {
 
 	/*number where all of its multiples will be replaced by str1
 	  Required: true
+	  Minimum: 1
 	  In: query
 	*/
 	Int1 int64
 	/*number where all of its multiples will be replaced by str2
 	  Required: true
+	  Minimum: 1
 	  In: query
 	*/
 	Int2 int64
@@ -124,6 +126,20 @@ func (o *FizzbuzzParams) bindInt1(rawData []string, hasKey bool, formats strfmt.
 	}
 	o.Int1 = value
 
+	if err := o.validateInt1(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateInt1 carries on validations for parameter Int1
+func (o *FizzbuzzParams) validateInt1(formats strfmt.Registry) error {
+
+	if err := validate.MinimumInt("int1", "query", o.Int1, 1, false); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -149,6 +165,20 @@ func (o *FizzbuzzParams) bindInt2(rawData []string, hasKey bool, formats strfmt.
 		return errors.InvalidType("int2", "query", "int64", raw)
 	}
 	o.Int2 = value
+
+	if err := o.validateInt2(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateInt2 carries on validations for parameter Int2
+func (o *FizzbuzzParams) validateInt2(formats strfmt.Registry) error {
+
+	if err := validate.MinimumInt("int2", "query", o.Int2, 1, false); err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -23,6 +23,54 @@ func TestFizzBuzz(t *testing.T) {
 		expectedJSONBody   any
 	}{
 		{
+			label: "not positive int1",
+			queryArgs: tdhttp.Q{
+				"int1":  -1,
+				"int2":  5,
+				"limit": 50,
+				"str1":  "fizz",
+				"str2":  "buzz",
+			},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":609,"message":"int1 in query should be greater than or equal to 1"}`),
+		},
+		{
+			label: "not positive int2",
+			queryArgs: tdhttp.Q{
+				"int1":  3,
+				"int2":  -1,
+				"limit": 50,
+				"str1":  "fizz",
+				"str2":  "buzz",
+			},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":609,"message":"int2 in query should be greater than or equal to 1"}`),
+		},
+		{
+			label: "zero int1",
+			queryArgs: tdhttp.Q{
+				"int1":  0,
+				"int2":  5,
+				"limit": 50,
+				"str1":  "fizz",
+				"str2":  "buzz",
+			},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":609,"message":"int1 in query should be greater than or equal to 1"}`),
+		},
+		{
+			label: "zero int2",
+			queryArgs: tdhttp.Q{
+				"int1":  3,
+				"int2":  0,
+				"limit": 50,
+				"str1":  "fizz",
+				"str2":  "buzz",
+			},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":609,"message":"int2 in query should be greater than or equal to 1"}`),
+		},
+		{
 			label: "empty str1 and str2",
 			queryArgs: tdhttp.Q{
 				"int1":  3,
