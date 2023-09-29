@@ -1,6 +1,7 @@
 package fizzbuzz
 
 import (
+	"fizz/internal/redis"
 	"fizz/models"
 	"fizz/restapi/operations/fizzbuzz"
 	"fmt"
@@ -27,9 +28,11 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 	if params.Limit < min || params.Limit > max {
 		return fizzbuzz.NewFizzbuzzDefault(http.StatusBadRequest).WithPayload(&models.Error{
 			Code:    http.StatusBadRequest,
-			Message: fmt.Sprintf(`limit must be between %d and %d`, min, max),
+			Message: fmt.Sprintf(`limit must be between %d and %d, got %d`, min, max, params.Limit),
 		})
 	}
+
+	go redis.IncrHitRequest(params.HTTPRequest)
 
 	output := ""
 	for i := min; i <= params.Limit; i++ {

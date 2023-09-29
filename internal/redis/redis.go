@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/go-redis/redis"
+	"github.com/juju/errors"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -29,8 +31,8 @@ type TopRequest struct {
 	Str2  string `json:"str2"`
 }
 
-// increments given request in redis
-func IncrHitRequest(req *http.Request) error {
+// increments given request hits in redis
+func IncrHitRequest(req *http.Request) {
 	query := req.URL.Query()
 	params := []string{
 		query["int1"][0],
@@ -40,7 +42,9 @@ func IncrHitRequest(req *http.Request) error {
 		query["str2"][0],
 	}
 	_, err := client.ZIncrBy(statsKey, 1, strings.Join(params, separator)).Result()
-	return err
+	if err != nil {
+		logrus.WithError(err).Warn(`error while incrementing hit request`)
+	}
 }
 
 func GetTopRequest() (*TopRequest, error) {
@@ -49,7 +53,7 @@ func GetTopRequest() (*TopRequest, error) {
 		return nil, err
 	}
 	if nbOfKey == 0 {
-		return nil, fmt.Errorf(`key "%s" does not exists`, statsKey)
+		return nil, errors.BadRequestf(`key "%s" does not exists`, statsKey)
 	}
 
 	topRequests, err := client.ZRevRangeWithScores(statsKey, 0, -1).Result()
