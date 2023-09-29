@@ -17,7 +17,18 @@ tags:
     description: monitoring
   - name: stats
     description: stats
+  - name: metrics
+    description: metrics
 paths:
+  /metrics:
+    get:
+      tags: [metrics]
+      summary: prometheus metrics
+      produces:
+        - text/plain; charset=utf-8
+      responses:
+        200:
+          description: OK
   /mon/ping:
     get:
       tags: [monitoring]

@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"fizz/restapi/operations/fizzbuzz"
+	"fizz/restapi/operations/metrics"
 	"fizz/restapi/operations/monitoring"
 	"fizz/restapi/operations/stats"
 )
@@ -45,7 +46,11 @@ func NewFizzBuzzAPIAPI(spec *loads.Document) *FizzBuzzAPIAPI {
 		JSONConsumer: runtime.JSONConsumer(),
 
 		JSONProducer: runtime.JSONProducer(),
+		TxtProducer:  runtime.TextProducer(),
 
+		MetricsGetMetricsHandler: metrics.GetMetricsHandlerFunc(func(params metrics.GetMetricsParams) middleware.Responder {
+			return middleware.NotImplemented("operation metrics.GetMetrics has not yet been implemented")
+		}),
 		MonitoringGetMonPingHandler: monitoring.GetMonPingHandlerFunc(func(params monitoring.GetMonPingParams) middleware.Responder {
 			return middleware.NotImplemented("operation monitoring.GetMonPing has not yet been implemented")
 		}),
@@ -90,7 +95,12 @@ type FizzBuzzAPIAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+	// TxtProducer registers a producer for the following mime types:
+	//   - text/plain
+	TxtProducer runtime.Producer
 
+	// MetricsGetMetricsHandler sets the operation handler for the get metrics operation
+	MetricsGetMetricsHandler metrics.GetMetricsHandler
 	// MonitoringGetMonPingHandler sets the operation handler for the get mon ping operation
 	MonitoringGetMonPingHandler monitoring.GetMonPingHandler
 	// StatsGetV1StatsHandler sets the operation handler for the get v1 stats operation
@@ -173,7 +183,13 @@ func (o *FizzBuzzAPIAPI) Validate() error {
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
+	if o.TxtProducer == nil {
+		unregistered = append(unregistered, "TxtProducer")
+	}
 
+	if o.MetricsGetMetricsHandler == nil {
+		unregistered = append(unregistered, "metrics.GetMetricsHandler")
+	}
 	if o.MonitoringGetMonPingHandler == nil {
 		unregistered = append(unregistered, "monitoring.GetMonPingHandler")
 	}
@@ -231,6 +247,8 @@ func (o *FizzBuzzAPIAPI) ProducersFor(mediaTypes []string) map[string]runtime.Pr
 		switch mt {
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+		case "text/plain":
+			result["text/plain"] = o.TxtProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {
@@ -271,6 +289,10 @@ func (o *FizzBuzzAPIAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/metrics"] = metrics.NewGetMetrics(o.context, o.MetricsGetMetricsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

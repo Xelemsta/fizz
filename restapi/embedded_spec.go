@@ -36,6 +36,22 @@ func init() {
   "host": "localhost",
   "basePath": "/",
   "paths": {
+    "/metrics": {
+      "get": {
+        "produces": [
+          "text/plain; charset=utf-8"
+        ],
+        "tags": [
+          "metrics"
+        ],
+        "summary": "prometheus metrics",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/mon/ping": {
       "get": {
         "tags": [
@@ -220,6 +236,10 @@ func init() {
     {
       "description": "stats",
       "name": "stats"
+    },
+    {
+      "description": "metrics",
+      "name": "metrics"
     }
   ]
 }`))
@@ -242,6 +262,22 @@ func init() {
   "host": "localhost",
   "basePath": "/",
   "paths": {
+    "/metrics": {
+      "get": {
+        "produces": [
+          "text/plain; charset=utf-8"
+        ],
+        "tags": [
+          "metrics"
+        ],
+        "summary": "prometheus metrics",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/mon/ping": {
       "get": {
         "tags": [
@@ -426,6 +462,10 @@ func init() {
     {
       "description": "stats",
       "name": "stats"
+    },
+    {
+      "description": "metrics",
+      "name": "metrics"
     }
   ]
 }`))

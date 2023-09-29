@@ -12,3 +12,4 @@ choix/ assumption
 amélioration
 - process fizzbuzz avec goroutines pour accélerer le rendu
 - spawn swagger ui
+- alert from alertmanager/elastalert
