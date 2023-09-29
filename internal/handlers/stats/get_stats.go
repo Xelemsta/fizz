@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/juju/errors"
 )
 
 type getStats struct{}
@@ -19,8 +20,16 @@ func NewGetStatsHandler() stats.GetV1StatsHandler {
 func (impl *getStats) Handle(params stats.GetV1StatsParams) middleware.Responder {
 	topRequest, err := redis.GetTopRequest()
 	if err != nil {
-		return stats.NewGetV1StatsDefault(http.StatusInternalServerError)
+		status := http.StatusInternalServerError
+		if errors.Is(err, errors.BadRequest) {
+			status = http.StatusBadRequest
+		}
+		return stats.NewGetV1StatsDefault(status).WithPayload(&models.Error{
+			Code:    int64(status),
+			Message: err.Error(),
+		})
 	}
+
 	return stats.NewGetV1StatsOK().WithPayload(&models.MostUsedRequest{
 		Hits:  topRequest.Hits,
 		Int1:  &topRequest.Int1,

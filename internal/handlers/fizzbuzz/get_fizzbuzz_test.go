@@ -23,6 +23,12 @@ func TestFizzBuzz(t *testing.T) {
 		expectedJSONBody   any
 	}{
 		{
+			label:              "no query args",
+			queryArgs:          tdhttp.Q{},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":602,"message":"int1 in query is required"}`),
+		},
+		{
 			label: "not positive int1",
 			queryArgs: tdhttp.Q{
 				"int1":  -1,
@@ -116,7 +122,7 @@ func TestFizzBuzz(t *testing.T) {
 				"str2":  "buzz",
 			},
 			expectedHttpStatus: http.StatusBadRequest,
-			expectedJSONBody:   td.JSON(`{"code":400,"message":"limit must be between 1 and 100"}`),
+			expectedJSONBody:   td.JSON(`{"code":400,"message":"limit must be between 1 and 100, got 0"}`),
 		},
 		{
 			label: "invalid limit top",
@@ -128,7 +134,7 @@ func TestFizzBuzz(t *testing.T) {
 				"str2":  "buzz",
 			},
 			expectedHttpStatus: http.StatusBadRequest,
-			expectedJSONBody:   td.JSON(`{"code":400,"message":"limit must be between 1 and 100"}`),
+			expectedJSONBody:   td.JSON(`{"code":400,"message":"limit must be between 1 and 100, got 101"}`),
 		},
 		{
 			label: "ok",
@@ -165,5 +171,4 @@ func TestFizzBuzz(t *testing.T) {
 		}
 		t.Run(c.label, f)
 	}
-
 }

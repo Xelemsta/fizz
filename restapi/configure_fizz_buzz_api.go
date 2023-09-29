@@ -13,7 +13,6 @@ import (
 	"fizz/internal/handlers/fizzbuzz"
 	"fizz/internal/handlers/monitoring"
 	"fizz/internal/handlers/stats"
-	"fizz/internal/redis"
 	"fizz/restapi/operations"
 )
 
@@ -44,8 +43,6 @@ func configureAPI(api *operations.FizzBuzzAPIAPI) http.Handler {
 	api.MonitoringGetMonPingHandler = monitoring.NewGetMonPingHandler()
 	api.FizzbuzzFizzbuzzHandler = fizzbuzz.NewFizzBuzzHandler()
 	api.StatsGetV1StatsHandler = stats.NewGetStatsHandler()
-
-	api.AddMiddlewareFor("GET", "/v1/fizzbuzz", countRequest)
 
 	api.PreServerShutdown = func() {}
 
@@ -78,22 +75,13 @@ func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	return logIncomingRequest(handler)
 }
 
-// increase count in redis for given query params
-func countRequest(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if err := redis.IncrHitRequest(r); err != nil {
-			logrus.WithError(err).Warn(`error while incrementing hit request`)
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
 func logIncomingRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logrus.WithFields(logrus.Fields{
 			"method": r.Method,
 			"path":   r.URL.Path,
 			"header": r.Header,
+			"params": r.URL.RawQuery,
 		}).Println("incoming request")
 		next.ServeHTTP(w, r)
 	})
