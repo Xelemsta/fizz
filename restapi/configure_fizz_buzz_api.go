@@ -8,10 +8,12 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/sirupsen/logrus"
 
 	"fizz/internal/handlers/fizzbuzz"
 	"fizz/internal/handlers/monitoring"
 	"fizz/internal/handlers/stats"
+	"fizz/internal/redis"
 	"fizz/restapi/operations"
 )
 
@@ -43,6 +45,8 @@ func configureAPI(api *operations.FizzBuzzAPIAPI) http.Handler {
 	api.FizzbuzzFizzbuzzHandler = fizzbuzz.NewFizzBuzzHandler()
 	api.StatsGetV1StatsHandler = stats.NewGetStatsHandler()
 
+	api.AddMiddlewareFor("GET", "/v1/fizzbuzz", countRequest)
+
 	api.PreServerShutdown = func() {}
 
 	api.ServerShutdown = func() {}
@@ -71,5 +75,26 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return handler
+	return logIncomingRequest(handler)
+}
+
+// increase count in redis for given query params
+func countRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := redis.IncrHitRequest(r); err != nil {
+			logrus.WithError(err).Warn(`error while incrementing hit request`)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func logIncomingRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logrus.WithFields(logrus.Fields{
+			"method": r.Method,
+			"path":   r.URL.Path,
+			"header": r.Header,
+		}).Println("incoming request")
+		next.ServeHTTP(w, r)
+	})
 }
