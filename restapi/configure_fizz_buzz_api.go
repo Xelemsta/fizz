@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"fizz/internal/handlers/fizzbuzz"
+	"fizz/internal/handlers/metrics"
 	"fizz/internal/handlers/monitoring"
 	"fizz/internal/handlers/stats"
 	"fizz/restapi/operations"
@@ -43,6 +44,7 @@ func configureAPI(api *operations.FizzBuzzAPIAPI) http.Handler {
 	api.MonitoringGetMonPingHandler = monitoring.NewGetMonPingHandler()
 	api.FizzbuzzFizzbuzzHandler = fizzbuzz.NewFizzBuzzHandler()
 	api.StatsGetV1StatsHandler = stats.NewGetStatsHandler()
+	api.MetricsGetMetricsHandler = metrics.NewGetMetricsHandler()
 
 	api.PreServerShutdown = func() {}
 
