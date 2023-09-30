@@ -1,12 +1,12 @@
 package transform
 
 import (
-	"fizz/internal/stats"
+	"fizz/internal/datastore"
 	"fizz/models"
 )
 
 // TopRequest transforms internal model to its related api model
-func TopRequest(topRequest *stats.TopRequest) *models.MostUsedRequest {
+func TopRequest(topRequest *datastore.TopRequest) *models.MostUsedRequest {
 	return &models.MostUsedRequest{
 		Hits:  &topRequest.Hits,
 		Int1:  &topRequest.Int1,

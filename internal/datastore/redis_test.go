@@ -1,14 +1,12 @@
-package stats_test
+package datastore_test
 
 import (
+	"fizz/internal/datastore"
+	"fizz/testutils"
 	"fmt"
 	"net/http"
 	"testing"
 	"time"
-
-	"fizz/internal/database"
-	"fizz/internal/stats"
-	"fizz/testutils"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis"
@@ -16,29 +14,24 @@ import (
 	"github.com/maxatome/go-testdeep/td"
 )
 
-func TestIncrRequest(t *testing.T) {
+func TestRedisIncrHit(t *testing.T) {
 	miniredis, err := miniredis.Run()
 	td.CmpNoError(t, err)
 	client := redis.NewClient(&redis.Options{
 		Addr: miniredis.Addr(),
 	})
+	datastore.SetRedisClient(&datastore.RedisClient{
+		Client: client,
+	})
 
 	cases := []struct {
 		label         string
 		url           string
-		redisClient   *redis.Client
 		expectedError error
 	}{
 		{
-			label:         "no redis client",
-			url:           "/v1/fizzbuzz?int1=3&int2=5&limit=100&str1=fizz&str2=buzz",
-			redisClient:   nil,
-			expectedError: fmt.Errorf(`please provide a non nil redis client`),
-		},
-		{
 			label:         "ok",
 			url:           "/v1/fizzbuzz?int1=3&int2=5&limit=100&str1=fizz&str2=buzz",
-			redisClient:   client,
 			expectedError: nil,
 		},
 	}
@@ -47,43 +40,32 @@ func TestIncrRequest(t *testing.T) {
 		f := func(t *testing.T) {
 			req, err := http.NewRequest(http.MethodGet, c.url, nil)
 			td.CmpNoError(t, err)
-			td.Cmp(t, stats.IncrHitRequest(req, c.redisClient), c.expectedError)
+			td.Cmp(t, datastore.GetRedisClient().IncrHitRequest(req), c.expectedError)
 		}
 		t.Run(c.label, f)
 	}
 }
 
-func TestTopRequest(t *testing.T) {
+func TestRedisTopRequest(t *testing.T) {
 	ta := tdhttp.NewTestAPI(t, testutils.InitAPI(t))
 	miniredis, err := miniredis.Run()
 	td.CmpNoError(t, err)
 	client := redis.NewClient(&redis.Options{
 		Addr: miniredis.Addr(),
 	})
-
-	// used by api calls in before func
-	database.SetRedisClient(redis.NewClient(&redis.Options{
-		Addr: miniredis.Addr(),
-	}))
+	datastore.SetRedisClient(&datastore.RedisClient{
+		Client: client,
+	})
 
 	cases := []struct {
 		label              string
 		before             func()
-		redisClient        *redis.Client
 		expectedError      error
-		expectedTopRequest *stats.TopRequest
+		expectedTopRequest *datastore.TopRequest
 	}{
-		{
-			label:              "no redis client",
-			before:             nil,
-			redisClient:        nil,
-			expectedError:      fmt.Errorf(`please provide a non nil redis client`),
-			expectedTopRequest: nil,
-		},
 		{
 			label:              "key does not exist",
 			before:             nil,
-			redisClient:        client,
 			expectedError:      fmt.Errorf(`you need to perform at least one request before being able to retrieve top request`),
 			expectedTopRequest: nil,
 		},
@@ -110,9 +92,8 @@ func TestTopRequest(t *testing.T) {
 					tdhttp.Q{"int1": 5, "int2": 7, "limit": 100, "str1": "happy", "str2": "halloween"},
 				).CmpStatus(http.StatusOK).OrDumpResponse()
 			},
-			redisClient:   client,
 			expectedError: nil,
-			expectedTopRequest: &stats.TopRequest{
+			expectedTopRequest: &datastore.TopRequest{
 				Hits:  3,
 				Int1:  5,
 				Int2:  7,
@@ -144,9 +125,8 @@ func TestTopRequest(t *testing.T) {
 					tdhttp.Q{"int1": 5, "int2": 7, "limit": 100, "str1": "alone", "str2": "request"},
 				).CmpStatus(http.StatusOK).OrDumpResponse()
 			},
-			redisClient:   client,
 			expectedError: nil,
-			expectedTopRequest: &stats.TopRequest{
+			expectedTopRequest: &datastore.TopRequest{
 				Hits:  4,
 				Int1:  8,
 				Int2:  10,
@@ -163,7 +143,7 @@ func TestTopRequest(t *testing.T) {
 				c.before()
 				time.Sleep(500 * time.Millisecond)
 			}
-			topRequest, err := stats.GetTopRequest(c.redisClient)
+			topRequest, err := datastore.GetRedisClient().GetTopRequest()
 			if err != nil {
 				td.Cmp(t, err.Error(), c.expectedError.Error())
 			} else {
