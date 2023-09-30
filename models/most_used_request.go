@@ -20,7 +20,8 @@ import (
 type MostUsedRequest struct {
 
 	// hits
-	Hits int64 `json:"hits,omitempty"`
+	// Required: true
+	Hits *int64 `json:"hits"`
 
 	// int1
 	// Required: true
@@ -47,6 +48,10 @@ type MostUsedRequest struct {
 func (m *MostUsedRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateHits(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateInt1(formats); err != nil {
 		res = append(res, err)
 	}
@@ -70,6 +75,15 @@ func (m *MostUsedRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MostUsedRequest) validateHits(formats strfmt.Registry) error {
+
+	if err := validate.Required("hits", "body", m.Hits); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -143,3 +143,4 @@ definitions:
       - limit
       - str1
       - str2
+      - hits

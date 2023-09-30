@@ -29,6 +29,10 @@ func generateMemberFromRequest(int1, int2, limit, str1, str2 string) string {
 
 // IncrHitRequest increments given request hits in redis
 func IncrHitRequest(req *http.Request, client *redis.Client) error {
+	if client == nil {
+		return fmt.Errorf(`please provide a non nil redis client`)
+	}
+
 	query := req.URL.Query()
 	member := generateMemberFromRequest(
 		query["int1"][0],
@@ -44,6 +48,9 @@ func IncrHitRequest(req *http.Request, client *redis.Client) error {
 
 // GetTopRequest retrieves top count of api requests (with query args)
 func GetTopRequest(client *redis.Client) (*TopRequest, error) {
+	if client == nil {
+		return nil, fmt.Errorf(`please provide a non nil redis client`)
+	}
 	nbOfKey, err := client.Exists(key).Result()
 	if err != nil {
 		return nil, err

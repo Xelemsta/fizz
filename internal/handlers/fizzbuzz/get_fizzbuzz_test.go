@@ -137,6 +137,30 @@ func TestFizzBuzz(t *testing.T) {
 			expectedJSONBody:   td.JSON(`{"code":400,"message":"limit must be between 1 and 100, got 101"}`),
 		},
 		{
+			label: "forbidden char str1",
+			queryArgs: tdhttp.Q{
+				"int1":  3,
+				"int2":  5,
+				"limit": 30,
+				"str1":  "fizz-",
+				"str2":  "buzz",
+			},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":400,"message":"- is a forbidden char"}`),
+		},
+		{
+			label: "forbidden char str2",
+			queryArgs: tdhttp.Q{
+				"int1":  3,
+				"int2":  5,
+				"limit": 30,
+				"str1":  "fizz",
+				"str2":  "buzz-",
+			},
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":400,"message":"- is a forbidden char"}`),
+		},
+		{
 			label: "ok",
 			queryArgs: tdhttp.Q{
 				"int1":  3,
