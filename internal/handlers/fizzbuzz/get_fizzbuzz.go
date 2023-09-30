@@ -8,15 +8,17 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	min       int64  = 1
-	max       int64  = 100
-	separator string = ","
+	min           int64  = 1
+	max           int64  = 100
+	separator     string = ","
+	forbiddenChar string = "-" // used to compute member in redis
 )
 
 type fizzBuzzImpl struct{}
@@ -31,6 +33,13 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 		return fizzbuzz.NewFizzbuzzDefault(http.StatusBadRequest).WithPayload(&models.Error{
 			Code:    http.StatusBadRequest,
 			Message: fmt.Sprintf(`limit must be between %d and %d, got %d`, min, max, params.Limit),
+		})
+	}
+
+	if strings.Contains(params.Str1, forbiddenChar) || strings.Contains(params.Str2, forbiddenChar) {
+		return fizzbuzz.NewFizzbuzzDefault(http.StatusBadRequest).WithPayload(&models.Error{
+			Code:    http.StatusBadRequest,
+			Message: fmt.Sprintf(`%s is a forbidden char`, forbiddenChar),
 		})
 	}
 

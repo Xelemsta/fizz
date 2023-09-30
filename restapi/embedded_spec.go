@@ -196,7 +196,8 @@ func init() {
         "int2",
         "limit",
         "str1",
-        "str2"
+        "str2",
+        "hits"
       ],
       "properties": {
         "hits": {
@@ -422,7 +423,8 @@ func init() {
         "int2",
         "limit",
         "str1",
-        "str2"
+        "str2",
+        "hits"
       ],
       "properties": {
         "hits": {

@@ -3,6 +3,7 @@ package stats
 import (
 	"fizz/internal/redis"
 	"fizz/internal/stats"
+	"fizz/internal/transform"
 	"fizz/models"
 	operation "fizz/restapi/operations/stats"
 	"net/http"
@@ -31,12 +32,5 @@ func (impl *getStats) Handle(params operation.GetV1StatsParams) middleware.Respo
 		})
 	}
 
-	return operation.NewGetV1StatsOK().WithPayload(&models.MostUsedRequest{
-		Hits:  topRequest.Hits,
-		Int1:  &topRequest.Int1,
-		Int2:  &topRequest.Int2,
-		Limit: &topRequest.Limit,
-		Str1:  &topRequest.Str1,
-		Str2:  &topRequest.Str2,
-	})
+	return operation.NewGetV1StatsOK().WithPayload(transform.TopRequest(topRequest))
 }
