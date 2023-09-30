@@ -4,14 +4,6 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
 
-networks:
-  http:
-    driver: bridge
-  monitoring-back:
-    driver: bridge
-  data:
-    driver: bridge
-
 services:
   api:
     image: fizzbuzz-api
@@ -24,17 +16,11 @@ services:
       - 3001
     depends_on:
       - redis
-    networks:
-      - monitoring-back
-      - http
-      - data
 
   redis:
     image: redis:7.2.1-alpine
     ports:
       - "6379:6379"
-    networks:
-      - data
 
   prometheus:
     image: prom/prometheus
@@ -51,8 +37,6 @@ services:
       - "9091:9091"
     expose:
       - 9091
-    networks:
-      - monitoring-back
 
   grafana:
     image: grafana/grafana
@@ -70,5 +54,3 @@ services:
       - 3000
     depends_on:
       - prometheus
-    networks:
-      - monitoring-back

@@ -2,8 +2,9 @@ package stats
 
 import (
 	"fizz/internal/redis"
+	"fizz/internal/stats"
 	"fizz/models"
-	"fizz/restapi/operations/stats"
+	operation "fizz/restapi/operations/stats"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -12,25 +13,25 @@ import (
 
 type getStats struct{}
 
-func NewGetStatsHandler() stats.GetV1StatsHandler {
+func NewGetStatsHandler() operation.GetV1StatsHandler {
 	return &getStats{}
 }
 
 // Handle implements GET /v1/metrics
-func (impl *getStats) Handle(params stats.GetV1StatsParams) middleware.Responder {
-	topRequest, err := redis.GetTopRequest()
+func (impl *getStats) Handle(params operation.GetV1StatsParams) middleware.Responder {
+	topRequest, err := stats.GetTopRequest(redis.GetClient())
 	if err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, errors.BadRequest) {
 			status = http.StatusBadRequest
 		}
-		return stats.NewGetV1StatsDefault(status).WithPayload(&models.Error{
+		return operation.NewGetV1StatsDefault(status).WithPayload(&models.Error{
 			Code:    int64(status),
 			Message: err.Error(),
 		})
 	}
 
-	return stats.NewGetV1StatsOK().WithPayload(&models.MostUsedRequest{
+	return operation.NewGetV1StatsOK().WithPayload(&models.MostUsedRequest{
 		Hits:  topRequest.Hits,
 		Int1:  &topRequest.Int1,
 		Int2:  &topRequest.Int2,
