@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"fizz/internal/database"
+	"fizz/internal/datastore"
 	"fizz/testutils"
 
 	"github.com/alicebob/miniredis/v2"
@@ -18,9 +18,12 @@ func TestStats(t *testing.T) {
 	ta := tdhttp.NewTestAPI(t, testutils.InitAPI(t))
 	miniredis, err := miniredis.Run()
 	td.CmpNoError(t, err)
-	database.SetRedisClient(redis.NewClient(&redis.Options{
+	client := redis.NewClient(&redis.Options{
 		Addr: miniredis.Addr(),
-	}))
+	})
+	datastore.SetRedisClient(&datastore.RedisClient{
+		Client: client,
+	})
 
 	cases := []struct {
 		label              string

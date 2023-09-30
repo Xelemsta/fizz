@@ -1,7 +1,7 @@
 package transform_test
 
 import (
-	"fizz/internal/stats"
+	"fizz/internal/datastore"
 	"fizz/internal/transform"
 	"fizz/models"
 	"testing"
@@ -18,12 +18,12 @@ func TestTopRequest(t *testing.T) {
 	str2 := "Str2"
 	cases := []struct {
 		label               string
-		topRequest          *stats.TopRequest
+		topRequest          *datastore.TopRequest
 		expectedApiResponse *models.MostUsedRequest
 	}{
 		{
 			label: "ok",
-			topRequest: &stats.TopRequest{
+			topRequest: &datastore.TopRequest{
 				Hits:  1,
 				Int1:  2,
 				Int2:  3,

@@ -1,8 +1,7 @@
 package fizzbuzz
 
 import (
-	"fizz/internal/database"
-	"fizz/internal/stats"
+	"fizz/internal/datastore"
 	"fizz/models"
 	"fizz/restapi/operations/fizzbuzz"
 	"fmt"
@@ -47,7 +46,13 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 	// this code could be in a middleware but we will
 	// have to process potential authentication + validation params on our own
 	go func() {
-		err := stats.IncrHitRequest(params.HTTPRequest, database.GetRedisClient())
+		backend, err := datastore.GetBackend(string(datastore.RedisBackendName))
+		if err != nil {
+			logrus.WithError(err).Warnf(`error while retrieving backend`)
+			return
+		}
+
+		err = backend.IncrHitRequest(params.HTTPRequest)
 		if err != nil {
 			logrus.WithError(err).Warnf(`error while incrementing hit request`)
 		}

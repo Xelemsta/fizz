@@ -1,12 +1,12 @@
 package stats
 
 import (
-	"fizz/internal/database"
-	"fizz/internal/stats"
+	"net/http"
+
+	"fizz/internal/datastore"
 	"fizz/internal/transform"
 	"fizz/models"
-	operation "fizz/restapi/operations/stats"
-	"net/http"
+	"fizz/restapi/operations/stats"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/juju/errors"
@@ -14,23 +14,31 @@ import (
 
 type getStats struct{}
 
-func NewGetStatsHandler() operation.GetV1StatsHandler {
+func NewGetStatsHandler() stats.GetV1StatsHandler {
 	return &getStats{}
 }
 
 // Handle implements GET /v1/metrics
-func (impl *getStats) Handle(params operation.GetV1StatsParams) middleware.Responder {
-	topRequest, err := stats.GetTopRequest(database.GetRedisClient())
+func (impl *getStats) Handle(params stats.GetV1StatsParams) middleware.Responder {
+	backend, err := datastore.GetBackend(string(datastore.RedisBackendName))
+	if err != nil {
+		return stats.NewGetV1StatsDefault(http.StatusInternalServerError).WithPayload(&models.Error{
+			Code:    int64(http.StatusInternalServerError),
+			Message: err.Error(),
+		})
+	}
+
+	topRequest, err := backend.GetTopRequest()
 	if err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, errors.BadRequest) {
 			status = http.StatusBadRequest
 		}
-		return operation.NewGetV1StatsDefault(status).WithPayload(&models.Error{
+		return stats.NewGetV1StatsDefault(status).WithPayload(&models.Error{
 			Code:    int64(status),
 			Message: err.Error(),
 		})
 	}
 
-	return operation.NewGetV1StatsOK().WithPayload(transform.TopRequest(topRequest))
+	return stats.NewGetV1StatsOK().WithPayload(transform.TopRequest(topRequest))
 }

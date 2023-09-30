@@ -1,4 +1,4 @@
-package stats
+package datastore
 
 import (
 	"fmt"
@@ -10,20 +10,31 @@ import (
 	"github.com/juju/errors"
 )
 
+var redisClient *RedisClient
+
 const (
 	key       = "stats"
 	separator = "-"
 )
 
-// TopRequest stores top request made
-// by the api clients (according to params).
-type TopRequest struct {
-	Hits  int64  `json:"hits"`
-	Int1  int64  `json:"int1"`
-	Int2  int64  `json:"int2"`
-	Limit int64  `json:"limit"`
-	Str1  string `json:"str1"`
-	Str2  string `json:"str2"`
+type RedisClient struct {
+	*redis.Client
+}
+
+func GetRedisClient() *RedisClient {
+	if redisClient == nil {
+		client := redis.NewClient(&redis.Options{
+			Addr:     "redis:6379",
+			Password: "",
+			DB:       0,
+		})
+		redisClient = &RedisClient{client}
+	}
+	return redisClient
+}
+
+func SetRedisClient(c *RedisClient) {
+	redisClient = c
 }
 
 // "5-8-100-fizz-buzz"
@@ -32,9 +43,9 @@ func generateMemberFromRequest(int1, int2, limit, str1, str2 string) string {
 }
 
 // IncrHitRequest increments given request hits in redis
-func IncrHitRequest(req *http.Request, client *redis.Client) error {
-	if client == nil {
-		return fmt.Errorf(`please provide a non nil redis client`)
+func (c *RedisClient) IncrHitRequest(req *http.Request) error {
+	if redisClient == nil {
+		return fmt.Errorf(`backend not initialized yet`)
 	}
 
 	query := req.URL.Query()
@@ -46,16 +57,16 @@ func IncrHitRequest(req *http.Request, client *redis.Client) error {
 		query["str2"][0],
 	)
 
-	_, err := client.ZIncrBy(key, 1, member).Result()
+	_, err := redisClient.ZIncrBy(key, 1, member).Result()
 	return err
 }
 
 // GetTopRequest retrieves top count of api requests (with query args)
-func GetTopRequest(client *redis.Client) (*TopRequest, error) {
-	if client == nil {
+func (c *RedisClient) GetTopRequest() (*TopRequest, error) {
+	if c == nil {
 		return nil, fmt.Errorf(`please provide a non nil redis client`)
 	}
-	nbOfKey, err := client.Exists(key).Result()
+	nbOfKey, err := c.Exists(key).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +74,7 @@ func GetTopRequest(client *redis.Client) (*TopRequest, error) {
 		return nil, errors.BadRequestf(`you need to perform at least one request before being able to retrieve top request`)
 	}
 
-	topRequests, err := client.ZRevRangeWithScores(key, 0, -1).Result()
+	topRequests, err := c.ZRevRangeWithScores(key, 0, -1).Result()
 	if err != nil {
 		return nil, err
 	}
