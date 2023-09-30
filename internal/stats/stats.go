@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-redis/redis"
+	"github.com/juju/errors"
 )
 
 const (
@@ -14,6 +15,8 @@ const (
 	separator = "-"
 )
 
+// TopRequest stores top request made
+// by the api clients (according to params).
 type TopRequest struct {
 	Hits  int64  `json:"hits"`
 	Int1  int64  `json:"int1"`
@@ -23,6 +26,7 @@ type TopRequest struct {
 	Str2  string `json:"str2"`
 }
 
+// "5-8-100-fizz-buzz"
 func generateMemberFromRequest(int1, int2, limit, str1, str2 string) string {
 	return strings.Join([]string{int1, int2, limit, str1, str2}, separator)
 }
@@ -56,7 +60,7 @@ func GetTopRequest(client *redis.Client) (*TopRequest, error) {
 		return nil, err
 	}
 	if nbOfKey == 0 {
-		return nil, fmt.Errorf(`key %s does not exists`, key)
+		return nil, errors.BadRequestf(`you need to perform at least one request before being able to retrieve top request`)
 	}
 
 	topRequests, err := client.ZRevRangeWithScores(key, 0, -1).Result()

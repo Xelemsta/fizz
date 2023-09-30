@@ -1,23 +1,3 @@
-# fizz
-
-- "-" is not allowed in str1 et str2 (car sert de délimiteur)
-- errors returned properly (bad request, not found, etc...)
-- faire test top request (bonus)
-- faire test redis package
-- internalRedis et redis
-
-choix/ assumption
-- incr dans handler au lieu de middleware pour être après l'authentification et la validation des params
-- redis: key/value parfait pour le besoin + data type pratique pour récupérer le top hit
-
-amélioration
-- process fizzbuzz avec goroutines pour accélerer le rendu
-- spawn swagger ui
-- alert from alertmanager/elastalert
-
-other
-curl "localhost:3001/v1/fizzbuzz?int1=3&int2=5&limit=100&str1=fizz&str2=buzz"
-
 # Fizz Buzz
 The original fizz-buzz consists in writing all numbers from 1 to 100, and just replacing all multiples of 3 by "fizz", all multiples of 5 by "buzz", and all multiples of 15 by "fizzbuzz". The output would look like this: "1,2,fizz,4,buzz,fizz,7,8,fizz,buzz,11,fizz,13,14,fizzbuzz,16,...".
 
@@ -42,9 +22,6 @@ Bonus: add a statistics endpoint allowing users to know what the most frequent r
 
 ## About application
 
-### Remaining tasks undone
-
-* test
 
 ### Start application
 
@@ -61,16 +38,21 @@ Bonus: add a statistics endpoint allowing users to know what the most frequent r
 ### Technical environment
 
 * docker
-* go-swagger
+* go swagger
 * redis
-* prometheus/grafana
+* prometheus
+* alertmanager
+* grafana
 
-### Choices/Assumptions
+### Technical choices/assumptions
 
-First of all, all my choices are mostly going towards stabilized and widely used technologies because it mostly offers a large community that can help on that matters if necessary and an exhaustive documentation.
-
-About the API, i decided to choose go-swagger to build it because itbrings mostly all the common features we would need to build that application and is "contract-first" including skeleton generation + interactive documentation. From that we will be able to focus mostly on business code (implemeting handlers) and routes definitions.
+* Go Swagger to generate API (contract first + cover all basic needs)
+* Redis to store top request stats (using sorted set data type that perfectly fits what we need to achieve)
+* Prometheus/Alertmanager to monitor app and performs alert if necessary
+* Grafana to visualize app performances
 
 ### Extensions/Improvements
 
-* todo
+* Spawn swagger UI
+* Use goroutines to perform fizzbuzz
+* Use persistent storage for prometheus metrics (mimir, opensearch, ....)

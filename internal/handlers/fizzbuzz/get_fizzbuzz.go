@@ -1,7 +1,7 @@
 package fizzbuzz
 
 import (
-	"fizz/internal/redis"
+	"fizz/internal/database"
 	"fizz/internal/stats"
 	"fizz/models"
 	"fizz/restapi/operations/fizzbuzz"
@@ -43,9 +43,11 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 		})
 	}
 
-	// increments the counter of given request
+	// increments the counter of given request.
+	// this code could be in a middleware but we will
+	// have to process potential authentication + validation params on our own
 	go func() {
-		err := stats.IncrHitRequest(params.HTTPRequest, redis.GetClient())
+		err := stats.IncrHitRequest(params.HTTPRequest, database.GetRedisClient())
 		if err != nil {
 			logrus.WithError(err).Warnf(`error while incrementing hit request`)
 		}
@@ -55,7 +57,7 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 	for i := min; i <= params.Limit; i++ {
 		sep := separator
 		if i == min {
-			sep = ""
+			sep = "" // avoid adding separator at string start
 		}
 		output += fizzBuzz(i, params.Int1, params.Int2, sep, params.Str1, params.Str2)
 	}

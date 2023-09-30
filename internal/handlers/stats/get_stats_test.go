@@ -1,11 +1,12 @@
 package stats_test
 
 import (
-	internalRedis "fizz/internal/redis"
-	"fizz/testutils"
 	"net/http"
 	"testing"
 	"time"
+
+	"fizz/internal/database"
+	"fizz/testutils"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis"
@@ -17,7 +18,7 @@ func TestStats(t *testing.T) {
 	ta := tdhttp.NewTestAPI(t, testutils.InitAPI(t))
 	miniredis, err := miniredis.Run()
 	td.CmpNoError(t, err)
-	internalRedis.SetClient(redis.NewClient(&redis.Options{
+	database.SetRedisClient(redis.NewClient(&redis.Options{
 		Addr: miniredis.Addr(),
 	}))
 
@@ -30,8 +31,8 @@ func TestStats(t *testing.T) {
 		{
 			label:              "no key",
 			before:             nil,
-			expectedHttpStatus: http.StatusInternalServerError,
-			expectedJSONBody:   td.JSON(`{"code":500,"message":"key stats does not exists"}`),
+			expectedHttpStatus: http.StatusBadRequest,
+			expectedJSONBody:   td.JSON(`{"code":400,"message":"you need to perform at least one request before being able to retrieve top request"}`),
 		},
 		{
 			label: "happy halloween three hits",
