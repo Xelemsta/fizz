@@ -2,6 +2,7 @@ package fizzbuzz
 
 import (
 	"fizz/internal/redis"
+	"fizz/internal/stats"
 	"fizz/models"
 	"fizz/restapi/operations/fizzbuzz"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -32,7 +34,13 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 		})
 	}
 
-	go redis.IncrHitRequest(params.HTTPRequest)
+	// increments the counter of given request
+	go func() {
+		err := stats.IncrHitRequest(params.HTTPRequest, redis.GetClient())
+		if err != nil {
+			logrus.WithError(err).Warnf(`error while incrementing hit request`)
+		}
+	}()
 
 	output := ""
 	for i := min; i <= params.Limit; i++ {
