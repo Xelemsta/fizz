@@ -1,7 +1,7 @@
 package stats
 
 import (
-	"fizz/internal/redis"
+	"fizz/internal/database"
 	"fizz/internal/stats"
 	"fizz/internal/transform"
 	"fizz/models"
@@ -20,7 +20,7 @@ func NewGetStatsHandler() operation.GetV1StatsHandler {
 
 // Handle implements GET /v1/metrics
 func (impl *getStats) Handle(params operation.GetV1StatsParams) middleware.Responder {
-	topRequest, err := stats.GetTopRequest(redis.GetClient())
+	topRequest, err := stats.GetTopRequest(database.GetRedisClient())
 	if err != nil {
 		status := http.StatusInternalServerError
 		if errors.Is(err, errors.BadRequest) {

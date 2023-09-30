@@ -10,11 +10,11 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/sirupsen/logrus"
 
+	"fizz/internal/database"
 	"fizz/internal/handlers/fizzbuzz"
 	"fizz/internal/handlers/metrics"
 	"fizz/internal/handlers/monitoring"
 	"fizz/internal/handlers/stats"
-	internalRedis "fizz/internal/redis"
 	"fizz/restapi/operations"
 
 	"github.com/go-redis/redis"
@@ -49,7 +49,7 @@ func configureAPI(api *operations.FizzBuzzAPIAPI) http.Handler {
 	api.StatsGetV1StatsHandler = stats.NewGetStatsHandler()
 	api.MetricsGetMetricsHandler = metrics.NewGetMetricsHandler()
 
-	internalRedis.SetClient(redis.NewClient(&redis.Options{
+	database.SetRedisClient(redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
 		Password: "",
 		DB:       0,

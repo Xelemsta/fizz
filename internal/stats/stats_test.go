@@ -1,13 +1,14 @@
 package stats_test
 
 import (
-	internalRedis "fizz/internal/redis"
-	"fizz/internal/stats"
-	"fizz/testutils"
 	"fmt"
 	"net/http"
 	"testing"
 	"time"
+
+	"fizz/internal/database"
+	"fizz/internal/stats"
+	"fizz/testutils"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/go-redis/redis"
@@ -61,7 +62,7 @@ func TestTopRequest(t *testing.T) {
 	})
 
 	// used by api calls in before func
-	internalRedis.SetClient(redis.NewClient(&redis.Options{
+	database.SetRedisClient(redis.NewClient(&redis.Options{
 		Addr: miniredis.Addr(),
 	}))
 
@@ -83,7 +84,7 @@ func TestTopRequest(t *testing.T) {
 			label:              "key does not exist",
 			before:             nil,
 			redisClient:        client,
-			expectedError:      fmt.Errorf(`key stats does not exists`),
+			expectedError:      fmt.Errorf(`you need to perform at least one request before being able to retrieve top request`),
 			expectedTopRequest: nil,
 		},
 		{
@@ -163,7 +164,11 @@ func TestTopRequest(t *testing.T) {
 				time.Sleep(500 * time.Millisecond)
 			}
 			topRequest, err := stats.GetTopRequest(c.redisClient)
-			td.Cmp(t, err, c.expectedError)
+			if err != nil {
+				td.Cmp(t, err.Error(), c.expectedError.Error())
+			} else {
+				td.Cmp(t, err, c.expectedError)
+			}
 			td.Cmp(t, topRequest, c.expectedTopRequest)
 		}
 		t.Run(c.label, f)
