@@ -28,13 +28,13 @@ func NewFizzBuzzHandler() fizzbuzz.FizzbuzzHandler {
 
 // Handle implements GET /v1/fizzbuzz.
 func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Responder {
+	// params validation
 	if params.Limit < min || params.Limit > max {
 		return fizzbuzz.NewFizzbuzzDefault(http.StatusBadRequest).WithPayload(&models.Error{
 			Code:    http.StatusBadRequest,
 			Message: fmt.Sprintf(`limit must be between %d and %d, got %d`, min, max, params.Limit),
 		})
 	}
-
 	if strings.Contains(params.Str1, forbiddenChar) || strings.Contains(params.Str2, forbiddenChar) {
 		return fizzbuzz.NewFizzbuzzDefault(http.StatusBadRequest).WithPayload(&models.Error{
 			Code:    http.StatusBadRequest,
@@ -44,14 +44,14 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 
 	// increments the counter of given request.
 	// this code could be in a middleware but we will
-	// have to process potential authentication + validation params on our own
+	// have to process potential authentication + validation params on our own.
+	// if another backend has to be use, please update datastore.GetBackend param.
 	go func() {
 		backend, err := datastore.GetBackend(string(datastore.RedisBackendName))
 		if err != nil {
 			logrus.WithError(err).Warnf(`error while retrieving backend`)
 			return
 		}
-
 		err = backend.IncrHitRequest(params.HTTPRequest)
 		if err != nil {
 			logrus.WithError(err).Warnf(`error while incrementing hit request`)
@@ -72,19 +72,19 @@ func (impl *fizzBuzzImpl) Handle(params fizzbuzz.FizzbuzzParams) middleware.Resp
 	})
 }
 
-func fizzBuzz(i, int1, int2 int64, sep, str1, str2 string) string {
-	// number is multiple of both int1 and int2
-	if i%int1 == 0 && i%int2 == 0 {
+func fizzBuzz(number, divider1, divider2 int64, sep, str1, str2 string) string {
+	// number is multiple of both divider1 and divider2
+	if number%divider1 == 0 && number%divider2 == 0 {
 		return sep + str1 + str2
 	}
-	// number is multiple of int1 only
-	if i%int1 == 0 {
+	// number is multiple of divider1 only
+	if number%divider1 == 0 {
 		return sep + str1
 	}
-	// number is multiple of int2 only
-	if i%int2 == 0 {
+	// number is multiple of divider2 only
+	if number%divider2 == 0 {
 		return sep + str2
 	}
 	// number is NOT a multiple of both int1 and int2
-	return sep + strconv.FormatInt(i, 10)
+	return sep + strconv.FormatInt(number, 10)
 }

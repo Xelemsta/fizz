@@ -2,8 +2,17 @@ global:
   scrape_interval:     15s
   evaluation_interval: 15s
 
+rule_files:
+  - "/alertmanager/alert.rules"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+        - alertmanager:9093
+
 scrape_configs:
-  - job_name: app
+  - job_name: fizzbuzz
     scrape_interval: 15s
     static_configs:
       - targets: ['api:3001']

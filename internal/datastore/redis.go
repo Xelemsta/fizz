@@ -32,18 +32,20 @@ func GetRedisClient() *RedisClient {
 	return redisClient
 }
 
+// Mostly usefull for tests purpose
 func SetRedisClient(c *RedisClient) {
 	redisClient = c
 }
 
 // IncrHitRequest increments given request hits in redis
+// using sorted set data type.
 func (c *RedisClient) IncrHitRequest(req *http.Request) error {
 	if redisClient == nil {
 		return fmt.Errorf(`backend not initialized yet`)
 	}
 
 	query := req.URL.Query()
-	member := generateMemberFromQueryParams(
+	member := generateMemberFromQueryArgs(
 		query["int1"][0],
 		query["int2"][0],
 		query["limit"][0],
@@ -55,7 +57,8 @@ func (c *RedisClient) IncrHitRequest(req *http.Request) error {
 	return err
 }
 
-// GetTopRequest retrieves top count of api requests (with query args)
+// GetTopRequest retrieves top count of api requests (including query args).
+// If two api requests have the same count, they are lexicographically ordered.
 func (c *RedisClient) GetTopRequest() (*TopRequest, error) {
 	if c == nil {
 		return nil, fmt.Errorf(`please provide a non nil redis client`)
@@ -77,16 +80,16 @@ func (c *RedisClient) GetTopRequest() (*TopRequest, error) {
 	if !ok {
 		return nil, fmt.Errorf(`unexpected top request format (expected 'string')`)
 	}
-	reqParams := strings.Split(strMember, separator)
-	int1, err := strconv.ParseInt(reqParams[0], 10, 64)
+	queryArgs := strings.Split(strMember, queryArgsSeparator)
+	int1, err := strconv.ParseInt(queryArgs[0], 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	int2, err := strconv.ParseInt(reqParams[1], 10, 64)
+	int2, err := strconv.ParseInt(queryArgs[1], 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	limit, err := strconv.ParseInt(reqParams[2], 10, 64)
+	limit, err := strconv.ParseInt(queryArgs[2], 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +99,7 @@ func (c *RedisClient) GetTopRequest() (*TopRequest, error) {
 		Int2:  int2,
 		Limit: limit,
 		Hits:  int64(topRequests[0].Score),
-		Str1:  reqParams[3],
-		Str2:  reqParams[4],
+		Str1:  queryArgs[3],
+		Str2:  queryArgs[4],
 	}, nil
 }

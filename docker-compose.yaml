@@ -25,6 +25,7 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus/
       - prometheus_data:/prometheus
+      - ./alertmanager/alert.rules:/alertmanager/alert.rules
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--log.level=debug'

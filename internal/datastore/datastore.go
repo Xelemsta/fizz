@@ -3,7 +3,6 @@ package datastore
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 type BackendName string
@@ -11,7 +10,8 @@ type BackendName string
 const (
 	RedisBackendName BackendName = "redis"
 	MapBackendName   BackendName = "map"
-	separator        string      = "-"
+
+	queryArgsSeparator string = "-"
 )
 
 // TopRequest stores top request made
@@ -25,7 +25,9 @@ type TopRequest struct {
 	Str2  string `json:"str2"`
 }
 
-// Backend is a generic interface for a datastore backend
+// Backend is a generic interface for a datastore backend.
+// This is supposed to be implemented by any backend that
+// api will use to store stats.
 type Backend interface {
 	IncrHitRequest(req *http.Request) error
 	GetTopRequest() (*TopRequest, error)
@@ -44,6 +46,14 @@ func GetBackend(backend string) (Backend, error) {
 }
 
 // "5-8-100-fizz-buzz"
-func generateMemberFromQueryParams(int1, int2, limit, str1, str2 string) string {
-	return strings.Join([]string{int1, int2, limit, str1, str2}, separator)
+func generateMemberFromQueryArgs(queryArgs ...string) string {
+	var member string
+	for index, queryArg := range queryArgs {
+		if index == 0 {
+			member += queryArg
+			continue
+		}
+		member += queryArgsSeparator + queryArg
+	}
+	return member
 }

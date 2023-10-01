@@ -17,7 +17,7 @@ func GetMapStats() MapStats {
 // IncrHitRequest increments given request hits in a in memory map
 func (m MapStats) IncrHitRequest(req *http.Request) error {
 	query := req.URL.Query()
-	key := generateMemberFromQueryParams(
+	key := generateMemberFromQueryArgs(
 		query["int1"][0],
 		query["int2"][0],
 		query["limit"][0],
@@ -29,7 +29,7 @@ func (m MapStats) IncrHitRequest(req *http.Request) error {
 	return nil
 }
 
-// GetTopRequest retrieves top count of api requests (with query args)
+// GetTopRequest retrieves top count of api requests (including query args)
 func (m MapStats) GetTopRequest() (*TopRequest, error) {
 	var topCount int64
 	var topKey string
@@ -40,16 +40,16 @@ func (m MapStats) GetTopRequest() (*TopRequest, error) {
 		}
 	}
 
-	reqParams := strings.Split(topKey, separator)
-	int1, err := strconv.ParseInt(reqParams[0], 10, 64)
+	queryArgs := strings.Split(topKey, queryArgsSeparator)
+	int1, err := strconv.ParseInt(queryArgs[0], 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	int2, err := strconv.ParseInt(reqParams[1], 10, 64)
+	int2, err := strconv.ParseInt(queryArgs[1], 10, 64)
 	if err != nil {
 		return nil, err
 	}
-	limit, err := strconv.ParseInt(reqParams[2], 10, 64)
+	limit, err := strconv.ParseInt(queryArgs[2], 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (m MapStats) GetTopRequest() (*TopRequest, error) {
 		Int2:  int2,
 		Limit: limit,
 		Hits:  topCount,
-		Str1:  reqParams[3],
-		Str2:  reqParams[4],
+		Str1:  queryArgs[3],
+		Str2:  queryArgs[4],
 	}, nil
 }
