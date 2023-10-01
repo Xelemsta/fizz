@@ -20,8 +20,13 @@ func TestDatastore(t *testing.T) {
 			expectedError: fmt.Errorf(`backend myBackend not implemented`),
 		},
 		{
-			label:         "ok",
+			label:         "ok redis",
 			backendName:   string(datastore.RedisBackendName),
+			expectedError: nil,
+		},
+		{
+			label:         "ok map",
+			backendName:   string(datastore.MapBackendName),
 			expectedError: nil,
 		},
 	}

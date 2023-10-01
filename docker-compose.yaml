@@ -19,8 +19,6 @@ services:
     image: redis:7.2.1-alpine
     ports:
       - "6379:6379"
-    expose:
-      - 6379
 
   prometheus:
     image: prom/prometheus
@@ -36,8 +34,6 @@ services:
       - '--web.listen-address=0.0.0.0:9091'
     ports:
       - "9091:9091"
-    expose:
-      - 9091
     depends_on:
       - api
 
@@ -63,7 +59,5 @@ services:
       - ./grafana/config.monitoring
     ports:
       - "3000:3000"
-    expose:
-      - 3000
     depends_on:
       - prometheus
