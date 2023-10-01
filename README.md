@@ -22,6 +22,7 @@ Bonus: add a statistics endpoint allowing users to know what the most frequent r
 * docker-compose
 * docker
 * git
+* go (to launch tests)
 
 ### Start application
 
@@ -57,3 +58,4 @@ Bonus: add a statistics endpoint allowing users to know what the most frequent r
 * Use goroutines to perform fizzbuzz
 * Use persistent storage for prometheus metrics (mimir, opensearch...)
 * use a vault server to store secrets (passwords, configuration)
+* Configure alertmanager
