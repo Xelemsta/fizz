@@ -15,7 +15,8 @@ func NewGetMetricsHandler() metrics.GetMetricsHandler {
 	return &getMetrics{}
 }
 
-// Handle implements GET /metrics
+// Handle implements GET /metrics.
+// Used by prometheus instance.
 func (impl *getMetrics) Handle(params metrics.GetMetricsParams) middleware.Responder {
 	return metricsResponder(func(w http.ResponseWriter, _ runtime.Producer) {
 		promhttp.Handler().ServeHTTP(w, params.HTTPRequest)

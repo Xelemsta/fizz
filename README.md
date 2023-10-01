@@ -18,10 +18,10 @@ Bonus: add a statistics endpoint allowing users to know what the most frequent r
 
 ## Prerequisites
 
+* make
 * docker-compose
-
-## About application
-
+* docker
+* git
 
 ### Start application
 
@@ -48,11 +48,12 @@ Bonus: add a statistics endpoint allowing users to know what the most frequent r
 
 * Go Swagger to generate API (contract first + cover all basic needs)
 * Redis to store top request stats (using sorted set data type that perfectly fits what we need to achieve)
-* Prometheus/Alertmanager to monitor app and performs alert if necessary
-* Grafana to visualize app performances
+* Prometheus/Alertmanager to monitor app and perform alerts if necessary
+* Grafana to visualize app metrics
 
 ### Extensions/Improvements
 
 * Spawn swagger UI
 * Use goroutines to perform fizzbuzz
-* Use persistent storage for prometheus metrics (mimir, opensearch, ....)
+* Use persistent storage for prometheus metrics (mimir, opensearch...)
+* use a vault server to store secrets (passwords, configuration)
