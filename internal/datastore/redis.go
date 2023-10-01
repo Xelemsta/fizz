@@ -13,8 +13,7 @@ import (
 var redisClient *RedisClient
 
 const (
-	key       = "stats"
-	separator = "-"
+	key = "stats"
 )
 
 type RedisClient struct {
@@ -37,11 +36,6 @@ func SetRedisClient(c *RedisClient) {
 	redisClient = c
 }
 
-// "5-8-100-fizz-buzz"
-func generateMemberFromRequest(int1, int2, limit, str1, str2 string) string {
-	return strings.Join([]string{int1, int2, limit, str1, str2}, separator)
-}
-
 // IncrHitRequest increments given request hits in redis
 func (c *RedisClient) IncrHitRequest(req *http.Request) error {
 	if redisClient == nil {
@@ -49,7 +43,7 @@ func (c *RedisClient) IncrHitRequest(req *http.Request) error {
 	}
 
 	query := req.URL.Query()
-	member := generateMemberFromRequest(
+	member := generateMemberFromQueryParams(
 		query["int1"][0],
 		query["int2"][0],
 		query["limit"][0],
