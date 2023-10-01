@@ -11,14 +11,14 @@ services:
       context: .
       dockerfile: ./Dockerfile
     ports:
-      - "3001:3001"
+      - "${API_PORT}:3001"
     depends_on:
       - redis
 
   redis:
-    image: redis:7.2.1-alpine
+    image: redis:alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
 
   prometheus:
     image: prom/prometheus
@@ -31,9 +31,9 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.listen-address=0.0.0.0:9091'
+      - '--web.listen-address=0.0.0.0:${PROMETHEUS_PORT}'
     ports:
-      - "9091:9091"
+      - "${PROMETHEUS_PORT}:9091"
     depends_on:
       - api
 
@@ -49,15 +49,15 @@ services:
 
   grafana:
     image: grafana/grafana
-    user: '472'
     environment:
       GF_INSTALL_PLUGINS: 'grafana-clock-panel,grafana-simple-json-datasource'
+      GF_SECURITY_ADMIN_USER: 'admin'
+      GF_SECURITY_ADMIN_PASSWORD: 'passwd'
+      GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/:/etc/grafana/provisioning/
-    env_file:
-      - ./grafana/config.monitoring
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT}:3000"
     depends_on:
       - prometheus
